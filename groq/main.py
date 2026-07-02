@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 import os
 from dotenv import load_dotenv
+from polish_service import polish_transcription
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -33,14 +34,14 @@ async def transcribe(file: UploadFile = File(...)):
     with open(temp_path, "rb") as audio_file:
         transcription = client.audio.transcriptions.create(
             file=audio_file,
-            model="whisper-large-v3-turbo"
+            model="whisper-large-v3-turbo",
         )
-        print(transcription)
+        clean_text = polish_transcription(transcription.text)
 
     os.remove(temp_path)
 
     return {
-        "text": transcription.text
+        "text": clean_text
     }
     
     
