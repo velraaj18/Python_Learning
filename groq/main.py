@@ -34,14 +34,14 @@ async def transcribe(file: UploadFile = File(...)):
     with open(temp_path, "rb") as audio_file:
         transcription = client.audio.transcriptions.create(
             file=audio_file,
-            model="whisper-large-v3-turbo",
+            model="whisper-large-v3",
         )
-        clean_text = polish_transcription(transcription.text)
+       # clean_text = polish_transcription(transcription.text)
 
     os.remove(temp_path)
 
     return {
-        "text": clean_text
+        "text": transcription.text
     }
     
     
