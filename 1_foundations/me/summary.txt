@@ -1,0 +1,10 @@
+Junior .NET Developer with around 2 years of experience developing
+and maintaining enterprise web applications using ASP.NET MVC,
+C#, SQL Server, Entity Framework and Web APIs. Experienced in
+application security remediation, workflow automation, production
+support, and UI modernization. Contributed to a large-scale
+enterprise platform consisting of 28 integrated internal applications
+and resolved 50+ production issues while supporting stable releases.
+Skilled in Azure DevOps, Git, SQL Server and modern software
+development practices. Passionate about learning new technologies
+and building impactful software solutions.

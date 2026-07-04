@@ -1,14 +1,20 @@
 #Open AI is a light weight python library for HTTP requests for LLMs.
 from openai import OpenAI
+from groq import Groq
+import os
+from dotenv import load_dotenv
 
 # OpenAI, deepseek, GROC, Anthropic models all can be called using this OpenAI() function (may be different params)
-ollama_base_url = "http://localhost:11434/v1"
-ollama = OpenAI(base_url= ollama_base_url, api_key="ollama")
+# ollama_base_url = "http://localhost:11434/v1"
+# ollama = OpenAI(base_url= ollama_base_url, api_key="ollama")
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
 
 messages = [{"role" : "user", "content" : "What is 2+2?"}]
 
 # To create a chat with the LLM
-response = ollama.chat.completions.create(model="llama3.2", messages=messages)
+response = client.chat.completions.create(model="llama-3.1-8b-instant", messages=messages)
 
 #Complete Response
 # ChatCompletion(id='chatcmpl-332', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='2 + 2 = 4.', refusal=None, role='assistant', annotations=None, audio=None, function_call=None, tool_calls=None))], created=1782792971, model='llama3.2', object='chat.completion', moderation=None, service_tier=None, system_fingerprint='fp_ollama', usage=CompletionUsage(completion_tokens=9, prompt_tokens=32, total_tokens=41, completion_tokens_details=None, prompt_tokens_details=None))
