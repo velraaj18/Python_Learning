@@ -17,7 +17,7 @@ client = AsyncOpenAI(
 )
 
 model = OpenAIChatCompletionsModel(
-    model="llama-3.1-8b-instant",
+    model="openai/gpt-oss-20b",
     openai_client= client
 )
 
@@ -124,7 +124,6 @@ async def send_email(
     return f"Email sent successfully. ID: {result['id']}"
 
 # planning and send the email
-
 async def pick_and_send_email():
     instructions = """
         You have exactly three tools.
@@ -158,6 +157,74 @@ async def pick_and_send_email():
         raise ValueError("Manager did not return an email.")
 
     await send_email(email)
+    
+# Email Manager Setup
+subject_instructions = "You write compelling subject lines for cold sales emails that get high open rates."
+html_instructions = "Convert a text email body to a professional HTML email body with clear formatting."
+
+subject_writer = Agent(name="Subject Writer", instructions=subject_instructions, model=model)
+subject_tool = subject_writer.as_tool(tool_name="subject_writer", tool_description="Write a subject for a cold sales email")
+
+html_converter = Agent(name="HTML Converter", instructions=html_instructions, model=model)
+html_tool = html_converter.as_tool(tool_name="html_converter", tool_description="Convert a text email body to an HTML email body")
+
+@function_tool
+def send_html_email(subject: str, html_body: str) -> str:
+    """Send out an email with the given subject and HTML body to all sales prospects"""
+    resend.api_key = RESEND_API_KEY
+    result = resend.Emails.send({
+        "from": "onboarding@resend.dev",
+        "to": ["velraaj30@gmail.com"],
+        "subject": subject,
+        "html": html_body,
+    })
+    return f"Email sent successfully. ID: {result['id']}"
+
+email_manager_instructions = """You are an email formatter and sender. You receive the body of an email to be sent.
+
+Follow these steps:
+1. Use the subject_writer tool to write a subject for the email
+2. Use the html_converter tool to convert the body to HTML
+3. Use the send_html_email tool to send the email with the subject and HTML body"""
+
+email_manager = Agent(
+    name="Email Manager",
+    instructions=email_manager_instructions,
+    tools=[subject_tool, html_tool, send_html_email],
+    model=model,
+    handoff_description="Convert an email to HTML and send it"
+)
+
+# Sales Manager Setup
+sales_manager_instructions = """You are a Sales Manager at ComplAI. Your goal is to find the single best cold sales email.
+
+Follow these steps carefully:
+1. Generate Drafts: Use all three sales_agent tools (tool_1, tool_2, tool_3) to generate three different email drafts. Call each tool exactly once.
+
+2. Evaluate and Select: Review the three drafts and choose the single best email using your judgment of which one is most effective.
+
+3. Handoff for Sending: Pass ONLY the winning email draft to the 'Email Manager' agent. The Email Manager will take care of formatting and sending.
+
+Important Rules:
+- You must call tool_1, tool_2, and tool_3 exactly once each
+- Do not call any tool more than once
+- After getting all three drafts, immediately select the best one
+- Hand off exactly ONE email to the Email Manager — never more than one"""
+
+sales_manager = Agent(
+    name="Sales Manager",
+    instructions=sales_manager_instructions,
+    tools=[tool1, tool2, tool3],
+    handoffs=[email_manager],
+    model=model
+)
+
+async def sales_manager_workflow():
+    message = "Send out a cold sales email addressed to Dear CEO from Alice"
+    
+    with trace("Automated SDR"):
+        result = await Runner.run(sales_manager, message)
+        print(result.final_output)
 
 if __name__ == "__main__":
-    asyncio.run(pick_and_send_email())
+    asyncio.run(sales_manager_workflow())
