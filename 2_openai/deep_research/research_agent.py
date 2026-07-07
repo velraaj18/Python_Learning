@@ -43,13 +43,12 @@ research_agent = Agent(
     name="Research Agent",
     model=model,
     tools=[search_web],
-    output_type=ResearchResult,
     instructions="""
 You are a professional research assistant.
 
 When given a research question:
 
-1. Call the search_web tool.
+1. Call the search_web tool. Provide answer for the first question only not the entire list.
 2. Use ONLY the information returned by the tool.
 3. Produce a concise summary.
 4. Populate the ResearchResult schema.
