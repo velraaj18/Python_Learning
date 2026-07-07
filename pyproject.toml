@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "crewai[litellm]>=1.15.1",
     "deepgram-sdk>=7.4.0",
     "fastapi>=0.138.2",
     "google-cloud-speech>=2.40.0",

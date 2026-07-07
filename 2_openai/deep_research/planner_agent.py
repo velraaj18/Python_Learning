@@ -16,6 +16,3 @@ planner_agent = Agent(
     model=model,
     output_type=ResearchPlan
 )
-
-result = Runner.run_sync(planner_agent, input="Research the impact of Artificial Intelligence on Healthcare")
-print(result.final_output)
