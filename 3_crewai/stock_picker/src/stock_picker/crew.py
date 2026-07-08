@@ -33,12 +33,28 @@ class StockPicker():
             tools= [SerperDevTool()] #Search tool provided by google
         )
         
+    @agent
+    def best_company_finder(self) -> Agent:
+        print(self.agents_config)
+        print(self.agents_config.keys())
+        return Agent(
+            config = self.agents_config['best_company_finder'],
+            verbose = True
+        )
+        
     @task
     def find_trending_companies(self) -> Task:
         return Task(
             config= self.tasks_config['find_trending_companies'],
             verbose = True,
             output_pydantic= TrendingCompanyList
+        )
+        
+    @task
+    def find_best_company(self) -> Task:
+        return Task(
+            config= self.tasks_config['find_best_company'],
+            verbose = True
         )
     
     @crew
